@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script type="text/javascript">
+$(function(){
+    $("#testForm").submit(function()
+        {
+        var bid1 = $("input[name=bid]:checked").val();
+        var you1 = $("input[name=you]:checked").val();
+        var unk1 = $("input[name=unk]:checked").val();
+        var sum = bid1 + you1 + unk1
+        alert(bid1 + you1 + unk1 + sum);
+        return true;
+        });
+});
+</script>
+
+</head>
+
+<body>
+
+<h1>Bluff Buddy</h1>
+
+<form name="myForm" id="testForm">
+Bid:<br>
+    <input type="radio" name="bid" value="1" checked>
+    <input type="radio" name="bid" value="2"> 
+    <input type="radio" name="bid" value="3"><br>
+You:<br>
+    <input type="radio" name="you" value="1" checked>
+    <input type="radio" name="you" value="2"> 
+    <input type="radio" name="you" value="3"><br>
+Unknown:<br>
+    <input type="radio" name="unk" value="1" checked>
+    <input type="radio" name="unk" value="2"> 
+    <input type="radio" name="unk" value="3"><br>
+<input type="submit" value="Submit">
+</form>
+
+</body>
+</html>

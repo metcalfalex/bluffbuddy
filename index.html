@@ -5,14 +5,14 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 <script type="text/javascript">
-$(function(){
+$(document).ready(function(){
     $("#testForm").submit(function()
         {
         var bid1 = $("input[name=bid]:checked").val();
-        var you1 = $("input[name=you]:checked").val();
+        var me1 = $("input[name=me]:checked").val();
         var unk1 = $("input[name=unk]:checked").val();
-        var sum = bid1 + you1 + unk1
-        alert(bid1 + you1 + unk1 + sum);
+        var sum = +bid1 + +me1 + +unk1;
+        alert(bid1 + me1 + unk1 + sum);
         return true;
         });
 });
@@ -26,18 +26,99 @@ $(function(){
 
 <form name="myForm" id="testForm">
 Bid:<br>
-    <input type="radio" name="bid" value="1" checked>
-    <input type="radio" name="bid" value="2"> 
-    <input type="radio" name="bid" value="3"><br>
-You:<br>
-    <input type="radio" name="you" value="1" checked>
-    <input type="radio" name="you" value="2"> 
-    <input type="radio" name="you" value="3"><br>
+    0<input type="radio" name="bid" value="0" checked>
+    1<input type="radio" name="bid" value="1"> 
+    2<input type="radio" name="bid" value="2"> 
+    3<input type="radio" name="bid" value="3"> 
+    4<input type="radio" name="bid" value="4"> 
+    5<input type="radio" name="bid" value="5"> 
+    6<input type="radio" name="bid" value="6"> 
+    7<input type="radio" name="bid" value="7"> 
+    8<input type="radio" name="bid" value="8"> 
+    9<input type="radio" name="bid" value="9"> 
+    10<input type="radio" name="bid" value="10"> 
+    11<input type="radio" name="bid" value="11"> 
+    12<input type="radio" name="bid" value="12"> 
+    13<input type="radio" name="bid" value="13"> 
+    14<input type="radio" name="bid" value="14"> 
+    15<input type="radio" name="bid" value="15"><p>
+Me:<br>
+    0<input type="radio" name="me" value="0" checked>
+    1<input type="radio" name="me" value="1"> 
+    2<input type="radio" name="me" value="2"> 
+    3<input type="radio" name="me" value="3"> 
+    4<input type="radio" name="me" value="4"> 
+    5<input type="radio" name="me" value="5"> 
+    6<input type="radio" name="me" value="6"> 
+    7<input type="radio" name="me" value="7"> 
+    8<input type="radio" name="me" value="8"> 
+    9<input type="radio" name="me" value="9"> 
+    10<input type="radio" name="me" value="10"> 
+    11<input type="radio" name="me" value="11"> 
+    12<input type="radio" name="me" value="12"> 
+    13<input type="radio" name="me" value="13"> 
+    14<input type="radio" name="me" value="14"> 
+    15<input type="radio" name="me" value="15"><p>
 Unknown:<br>
-    <input type="radio" name="unk" value="1" checked>
-    <input type="radio" name="unk" value="2"> 
-    <input type="radio" name="unk" value="3"><br>
-<input type="submit" value="Submit">
+    0<input type="radio" name="unk" value="0" checked>
+    1<input type="radio" name="unk" value="1"> 
+    2<input type="radio" name="unk" value="2"> 
+    3<input type="radio" name="unk" value="3"> 
+    4<input type="radio" name="unk" value="4"> 
+    5<input type="radio" name="unk" value="5"> 
+    6<input type="radio" name="unk" value="6"> 
+    7<input type="radio" name="unk" value="7"> 
+    8<input type="radio" name="unk" value="8"> 
+    9<input type="radio" name="unk" value="9"> 
+    10<input type="radio" name="unk" value="10"> 
+    11<input type="radio" name="unk" value="11"> 
+    12<input type="radio" name="unk" value="12"> 
+    13<input type="radio" name="unk" value="13"> 
+    14<input type="radio" name="unk" value="14"> 
+    15<input type="radio" name="unk" value="15"><p>
+Same:<br>
+    0<input type="radio" name="same" value="0" checked>
+    1<input type="radio" name="same" value="1"> 
+    2<input type="radio" name="same" value="2"> 
+    3<input type="radio" name="same" value="3"> 
+    4<input type="radio" name="same" value="4"> 
+    5<input type="radio" name="same" value="5"> 
+    6<input type="radio" name="same" value="6"> 
+    7<input type="radio" name="same" value="7"> 
+    8<input type="radio" name="same" value="8"> 
+    9<input type="radio" name="same" value="9"> 
+    10<input type="radio" name="same" value="10"> 
+    11<input type="radio" name="same" value="11"> 
+    12<input type="radio" name="same" value="12"> 
+    13<input type="radio" name="same" value="13"> 
+    14<input type="radio" name="same" value="14"> 
+    15<input type="radio" name="same" value="15"><p>
+Off:<br>
+    0<input type="radio" name="off" value="0" checked>
+    1<input type="radio" name="off" value="1"> 
+    2<input type="radio" name="off" value="2"> 
+    3<input type="radio" name="off" value="3"> 
+    4<input type="radio" name="off" value="4"> 
+    5<input type="radio" name="off" value="5"> 
+    6<input type="radio" name="off" value="6"> 
+    7<input type="radio" name="off" value="7"> 
+    8<input type="radio" name="off" value="8"> 
+    9<input type="radio" name="off" value="9"> 
+    10<input type="radio" name="off" value="10"> 
+    11<input type="radio" name="off" value="11"> 
+    12<input type="radio" name="off" value="12"> 
+    13<input type="radio" name="off" value="13"> 
+    14<input type="radio" name="off" value="14"> 
+    15<input type="radio" name="off" value="15"><p>
+
+Dice Count:<input type="text" name="dice_count" value="0"><p>
+
+<input type="submit" value="Submit"><p>
+
+Unknown:<input type="text" name="unk_prob" value="0.167">!!! if not number between 0 and 1, error<br>
+Same:<input type="text" name="same_prob" value="0.5"><br>
+Off:<input type="text" name="off_prob" value="0.083"><br>
+
 </form>
 
 </body>

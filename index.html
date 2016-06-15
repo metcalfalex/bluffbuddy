@@ -2,35 +2,76 @@
 <html>
 <head>
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+    
+
+</script>
 
 <script type="text/javascript">
 $(document).ready(function(){
 
-    var dcnt = 0
-    var bsest = 0
-    var unk_prob = 0
+    function GetZPercent(z) 
+      {
+        // http://stackoverflow.com/questions/16194730/seeking-a-statistical-javascript-function-to-return-p-value-from-a-z-score
+        //z == number of standard deviations from the mean
+
+        //if z is greater than 6.5 standard deviations from the mean
+        //the number of significant digits will be outside of a reasonable 
+        //range
+        if ( z < -6.5)
+          return 0.0;
+        if( z > 6.5) 
+          return 1.0;
+
+        var factK = 1;
+        var sum = 0;
+        var term = 1;
+        var k = 0;
+        var loopStop = Math.exp(-23);
+        while(Math.abs(term) > loopStop) 
+        {
+          term = .3989422804 * Math.pow(-1,k) * Math.pow(z,k) / (2 * k + 1) / Math.pow(2,k) * Math.pow(z,k+1) / factK;
+          sum += term;
+          k++;
+          factK *= k;
+
+        }
+        sum += 0.5;
+
+        return sum;
+      }
+
+    dcnt = 0
+    bsest = 0
+    unk_prob = 0
 
     $("#testForm input:radio").click(function() {
-        var bid1 = $("input[name=bid]:checked").val();
-        var mee1 = $("input[name=me]:checked").val();
-        var unk1 = $("input[name=unk]:checked").val();
-        var sam1 = $("input[name=same]:checked").val();
-        var off1 = $("input[name=off]:checked").val();
-        var dcnt = +bid1 + +mee1 + +unk1 + +sam1 + +off1;
+        bid_dice = $("input[name=bid]:checked").val();
+        mea_dice = $("input[name=mea]:checked").val();
+        meb_dice = $("input[name=meb]:checked").val();
+        unk_dice = $("input[name=unk]:checked").val();
+        sam_dice = $("input[name=same]:checked").val();
+        off_dice = $("input[name=off]:checked").val();
+        dcnt = +mea_dice + +unk_dice + +sam_dice + +off_dice;
         $('#dcnt').text(dcnt); // Update dice count
 
     });
 
     $('#calcuatebutton').click(function(){
-        var unk_prob = $('#unk_prob').val();
-        var sam_prob = $('#sam_prob').val();
-        var off_prob = $('#off_prob').val();
-        $('#bsest').text(unk_prob); // Update bid success estimate
+        unk_prob = $('#unk_prob').val();
+        sam_prob = $('#sam_prob').val();
+        off_prob = $('#off_prob').val();
+        zscore_u = +unk_dice * +unk_prob + 
+            +sam_dice * +sam_prob + 
+            +off_dice * +off_prob
+        zscore_s2 = +unk_dice * +unk_prob  * (1 - +unk_prob) +
+            +sam_dice * +sam_prob  * (1 - +sam_prob) +
+            +off_dice * +off_prob  * (1 - +off_prob)
+        zscore = ((+zscore_u-(+bid_dice - +meb_dice + 0.5))/Math.sqrt(+zscore_s2))
+        pvalue = GetZPercent(zscore)
+        $('#bsest').text(pvalue); // Update bid success estimate
 
     });
-
-
 
 });
 </script>
@@ -59,23 +100,40 @@ Bid:<br>
     13<input type="radio" name="bid" value="13"> 
     14<input type="radio" name="bid" value="14"> 
     15<input type="radio" name="bid" value="15"><p>
-Me:<br>
-    0<input type="radio" name="me" value="0" checked>
-    1<input type="radio" name="me" value="1"> 
-    2<input type="radio" name="me" value="2"> 
-    3<input type="radio" name="me" value="3"> 
-    4<input type="radio" name="me" value="4"> 
-    5<input type="radio" name="me" value="5"> 
-    6<input type="radio" name="me" value="6"> 
-    7<input type="radio" name="me" value="7"> 
-    8<input type="radio" name="me" value="8"> 
-    9<input type="radio" name="me" value="9"> 
-    10<input type="radio" name="me" value="10"> 
-    11<input type="radio" name="me" value="11"> 
-    12<input type="radio" name="me" value="12"> 
-    13<input type="radio" name="me" value="13"> 
-    14<input type="radio" name="me" value="14"> 
-    15<input type="radio" name="me" value="15"><p>
+Me (All dice):<br>
+    0<input type="radio" name="mea" value="0" checked>
+    1<input type="radio" name="mea" value="1"> 
+    2<input type="radio" name="mea" value="2"> 
+    3<input type="radio" name="mea" value="3"> 
+    4<input type="radio" name="mea" value="4"> 
+    5<input type="radio" name="mea" value="5"> 
+    6<input type="radio" name="mea" value="6"> 
+    7<input type="radio" name="mea" value="7"> 
+    8<input type="radio" name="mea" value="8"> 
+    9<input type="radio" name="mea" value="9"> 
+    10<input type="radio" name="mea" value="10"> 
+    11<input type="radio" name="mea" value="11"> 
+    12<input type="radio" name="mea" value="12"> 
+    13<input type="radio" name="mea" value="13"> 
+    14<input type="radio" name="mea" value="14"> 
+    15<input type="radio" name="mea" value="15"><p>
+Me (Bid dice):<br>
+    0<input type="radio" name="meb" value="0" checked>
+    1<input type="radio" name="meb" value="1"> 
+    2<input type="radio" name="meb" value="2"> 
+    3<input type="radio" name="meb" value="3"> 
+    4<input type="radio" name="meb" value="4"> 
+    5<input type="radio" name="meb" value="5"> 
+    6<input type="radio" name="meb" value="6"> 
+    7<input type="radio" name="meb" value="7"> 
+    8<input type="radio" name="meb" value="8"> 
+    9<input type="radio" name="meb" value="9"> 
+    10<input type="radio" name="meb" value="10"> 
+    11<input type="radio" name="meb" value="11"> 
+    12<input type="radio" name="meb" value="12"> 
+    13<input type="radio" name="meb" value="13"> 
+    14<input type="radio" name="meb" value="14"> 
+    15<input type="radio" name="meb" value="15"><p>
 Unknown:<br>
     0<input type="radio" name="unk" value="0" checked>
     1<input type="radio" name="unk" value="1"> 
@@ -128,7 +186,7 @@ Off:<br>
     14<input type="radio" name="off" value="14"> 
     15<input type="radio" name="off" value="15"><p>
 
-Dice Count: <br>
+Other players' dice count: <br>
 <h4 id="dcnt">0</h4>
 
 <input type="button" id="calcuatebutton" value="Calculate"><p>
@@ -136,7 +194,7 @@ Dice Count: <br>
 Bid Success Estimate: <br>
 <h4 id="bsest">0</h4>
 
-Unknown:<input type="text" id="unk_prob" value="0.167">!!! if not number between 0 and 1, error<br>
+Unknown:<input type="text" id="unk_prob" value="0.167"><br> <!-- !!! if not number between 0 and 1, error -->
 Same:<input type="text" id="sam_prob" value="0.5"><br>
 Off:<input type="text" id="off_prob" value="0.083"><br>
 

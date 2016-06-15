@@ -8,12 +8,8 @@
 $(document).ready(function(){
 
     var dcnt = 0
-
-    $("#testForm").submit(function()
-        {
-        alert(bid1 + me1 + unk1 + sum);
-        return true;
-        });
+    var bsest = 0
+    var unk_prob = 0
 
     $("#testForm input:radio").click(function() {
         var bid1 = $("input[name=bid]:checked").val();
@@ -21,12 +17,20 @@ $(document).ready(function(){
         var unk1 = $("input[name=unk]:checked").val();
         var sam1 = $("input[name=same]:checked").val();
         var off1 = $("input[name=off]:checked").val();
-        var dcnt = +bid1 + +mee1 + +unk1 + +sam1 + +off1 ;
-        $('#dcnt').text(dcnt);
+        var dcnt = +bid1 + +mee1 + +unk1 + +sam1 + +off1;
+        $('#dcnt').text(dcnt); // Update dice count
 
     });
 
-    // $("input:radio:first").prop("checked", true).trigger("click");
+    $('#calcuatebutton').click(function(){
+        var unk_prob = $('#unk_prob').val();
+        var sam_prob = $('#sam_prob').val();
+        var off_prob = $('#off_prob').val();
+        $('#bsest').text(unk_prob); // Update bid success estimate
+
+    });
+
+
 
 });
 </script>
@@ -127,11 +131,14 @@ Off:<br>
 Dice Count: <br>
 <h4 id="dcnt">0</h4>
 
-<input type="submit" value="Submit"><p>
+<input type="button" id="calcuatebutton" value="Calculate"><p>
 
-Unknown:<input type="text" name="unk_prob" value="0.167">!!! if not number between 0 and 1, error<br>
-Same:<input type="text" name="same_prob" value="0.5"><br>
-Off:<input type="text" name="off_prob" value="0.083"><br>
+Bid Success Estimate: <br>
+<h4 id="bsest">0</h4>
+
+Unknown:<input type="text" id="unk_prob" value="0.167">!!! if not number between 0 and 1, error<br>
+Same:<input type="text" id="sam_prob" value="0.5"><br>
+Off:<input type="text" id="off_prob" value="0.083"><br>
 
 </form>
 

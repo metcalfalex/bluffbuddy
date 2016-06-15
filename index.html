@@ -6,15 +6,28 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
+
+    var dcnt = 0
+
     $("#testForm").submit(function()
         {
-        var bid1 = $("input[name=bid]:checked").val();
-        var me1 = $("input[name=me]:checked").val();
-        var unk1 = $("input[name=unk]:checked").val();
-        var sum = +bid1 + +me1 + +unk1;
         alert(bid1 + me1 + unk1 + sum);
         return true;
         });
+
+    $("#testForm input:radio").click(function() {
+        var bid1 = $("input[name=bid]:checked").val();
+        var mee1 = $("input[name=me]:checked").val();
+        var unk1 = $("input[name=unk]:checked").val();
+        var sam1 = $("input[name=same]:checked").val();
+        var off1 = $("input[name=off]:checked").val();
+        var dcnt = +bid1 + +mee1 + +unk1 + +sam1 + +off1 ;
+        $('#dcnt').text(dcnt);
+
+    });
+
+    // $("input:radio:first").prop("checked", true).trigger("click");
+
 });
 </script>
 
@@ -111,7 +124,8 @@ Off:<br>
     14<input type="radio" name="off" value="14"> 
     15<input type="radio" name="off" value="15"><p>
 
-Dice Count:<input type="text" name="dice_count" value="0"><p>
+Dice Count: <br>
+<h4 id="dcnt">0</h4>
 
 <input type="submit" value="Submit"><p>
 

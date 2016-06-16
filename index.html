@@ -1,77 +1,43 @@
 <!DOCTYPE html>
-<html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+
 <head>
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
-    
-
-</script>
+<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
+<script type="text/javascript" src="jquery.min.js"></script>
 
 <script type="text/javascript">
+
 $(document).ready(function(){
 
-    function GetZPercent(z) 
-      {
-        // http://stackoverflow.com/questions/16194730/seeking-a-statistical-javascript-function-to-return-p-value-from-a-z-score
-        //z == number of standard deviations from the mean
+  prob = $('#prob').val();
 
-        //if z is greater than 6.5 standard deviations from the mean
-        //the number of significant digits will be outside of a reasonable 
-        //range
-        if ( z < -6.5)
-          return 0.0;
-        if( z > 6.5) 
-          return 1.0;
-
-        var factK = 1;
-        var sum = 0;
-        var term = 1;
-        var k = 0;
-        var loopStop = Math.exp(-23);
-        while(Math.abs(term) > loopStop) 
-        {
-          term = .3989422804 * Math.pow(-1,k) * Math.pow(z,k) / (2 * k + 1) / Math.pow(2,k) * Math.pow(z,k+1) / factK;
-          sum += term;
-          k++;
-          factK *= k;
-
-        }
-        sum += 0.5;
-
-        return sum;
-      }
-
-    dcnt = 0
-    bsest = 0
-    unk_prob = 0
-
-    $("#testForm input:radio").click(function() {
-        bid_dice = $("input[name=bid]:checked").val();
-        mea_dice = $("input[name=mea]:checked").val();
-        meb_dice = $("input[name=meb]:checked").val();
-        unk_dice = $("input[name=unk]:checked").val();
-        sam_dice = $("input[name=same]:checked").val();
-        off_dice = $("input[name=off]:checked").val();
-        dcnt = +mea_dice + +unk_dice + +sam_dice + +off_dice;
-        $('#dcnt').text(dcnt); // Update dice count
-
-    });
-
-    $('#calcuatebutton').click(function(){
-        unk_prob = $('#unk_prob').val();
-        sam_prob = $('#sam_prob').val();
-        off_prob = $('#off_prob').val();
-        zscore_u = +unk_dice * +unk_prob + 
-            +sam_dice * +sam_prob + 
-            +off_dice * +off_prob
-        zscore_s2 = +unk_dice * +unk_prob  * (1 - +unk_prob) +
-            +sam_dice * +sam_prob  * (1 - +sam_prob) +
-            +off_dice * +off_prob  * (1 - +off_prob)
-        zscore = ((+zscore_u-(+bid_dice - +meb_dice + 0.5))/Math.sqrt(+zscore_s2))
-        pvalue = GetZPercent(zscore)
-        $('#bsest').text(pvalue); // Update bid success estimate
-
-    });
+    // $('#updategraph').click(function(){
+      // alert('xxx');
+      // prob = $('#prob').val();
+    // });
 
 });
 </script>
@@ -79,126 +45,166 @@ $(document).ready(function(){
 </head>
 
 <body>
+<!-- <script src="//d3js.org/d3.v3.min.js"></script> -->
+<script src="d3.v3.min.js"></script>
+<script>
 
-<h1>Bluff Buddy</h1>
+function factorial(n) {
+  if (n === 0) {
+    return 1;
+  }
+  return n * factorial(n - 1);
+}
+
+function binom(p,x,n) {
+  return((factorial(n) / (factorial(x) * factorial(n - x))) * Math.pow(p,(x)) * Math.pow((1-p),(n-x)))
+}
+
+// alert(binom(.5,7,10))
+// alert(factorial(5))
+
+function updatedata() {
+
+d3.select("svg").remove(); // if svg already exists, remove
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var x1 = d3.scale.ordinal();
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// d3.csv("data.csv", function(error, data) {
+  // if (error) throw error;
+function render(data){
+
+  var ageNames = d3.keys(data[0]).filter(function(key) { return key !== "State"; });
+
+  data.forEach(function(d) {
+    d.ages = ageNames.map(function(name) { return {name: name, value: +d[name]}; });
+  });
+
+  x0.domain(data.map(function(d) { return d.State; }));
+  x1.domain(ageNames).rangeRoundBands([0, x0.rangeBand()]);
+  y.domain([0, d3.max(data, function(d) { return d3.max(d.ages, function(d) { return d.value; }); })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Population");
+
+  var state = svg.selectAll(".state")
+      .data(data)
+    .enter().append("g")
+      .attr("class", "state")
+      .attr("transform", function(d) { return "translate(" + x0(d.State) + ",0)"; });
+
+  state.selectAll("rect")
+      .data(function(d) { return d.ages; })
+    .enter().append("rect")
+      .attr("width", x1.rangeBand())
+      .attr("x", function(d) { return x1(d.name); })
+      .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height - y(d.value); })
+      .style("fill", function(d) { return color(d.name); });
+
+  var legend = svg.selectAll(".legend")
+      .data(ageNames.slice().reverse())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d; });
+
+// });
+};
+
+// prob = d3.selectAll("#prob").attr("value");
+prob = $('#prob').val();
+
+// $('#status').text(prob);
+
+
+// Next steps: (1) replace probabilities with binomial functions
+
+// alert(binom(prob,0,1))
+
+// data_in = [
+// {"State": "0 dice rolled", "1 Dice Possessed": +prob+0.1, "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
+// {"State": "1 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
+// {"State": "2 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
+// {"State": "3 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
+// {"State": "4 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
+// {"State": "5 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
+// ]
+
+
+
+data_in = [
+{"State": "0 dice rolled", "1 Dice Possessed": binom(+prob,0,1), "2 Dice Possessed": binom(+prob,0,2), "3 Dice Possessed": binom(+prob,0,3), "4 Dice Possessed": binom(+prob,0,4), "5 Dice Possessed": binom(+prob,0,5)},
+{"State": "1 dice rolled", "1 Dice Possessed": binom(+prob,1,1), "2 Dice Possessed": binom(+prob,1,2), "3 Dice Possessed": binom(+prob,1,3), "4 Dice Possessed": binom(+prob,1,4), "5 Dice Possessed": binom(+prob,1,5)},
+{"State": "2 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": binom(+prob,2,2), "3 Dice Possessed": binom(+prob,2,3), "4 Dice Possessed": binom(+prob,2,4), "5 Dice Possessed": binom(+prob,2,5)},
+{"State": "3 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": binom(+prob,3,3), "4 Dice Possessed": binom(+prob,3,4), "5 Dice Possessed": binom(+prob,3,5)},
+{"State": "4 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": binom(+prob,4,4), "5 Dice Possessed": binom(+prob,4,5)},
+{"State": "5 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": 0, "5 Dice Possessed": binom(+prob,5,5)},
+]
+
+
+
+render(data_in)
+
+};
+
+</script>
+<br>
+
+<h4 id="status">0</h4>
 
 <form name="myForm" id="testForm">
-Bid:<br>
-    0<input type="radio" name="bid" value="0" checked>
-    1<input type="radio" name="bid" value="1"> 
-    2<input type="radio" name="bid" value="2"> 
-    3<input type="radio" name="bid" value="3"> 
-    4<input type="radio" name="bid" value="4"> 
-    5<input type="radio" name="bid" value="5"> 
-    6<input type="radio" name="bid" value="6"> 
-    7<input type="radio" name="bid" value="7"> 
-    8<input type="radio" name="bid" value="8"> 
-    9<input type="radio" name="bid" value="9"> 
-    10<input type="radio" name="bid" value="10"> 
-    11<input type="radio" name="bid" value="11"> 
-    12<input type="radio" name="bid" value="12"> 
-    13<input type="radio" name="bid" value="13"> 
-    14<input type="radio" name="bid" value="14"> 
-    15<input type="radio" name="bid" value="15"><p>
-Me (All dice):<br>
-    0<input type="radio" name="mea" value="0" checked>
-    1<input type="radio" name="mea" value="1"> 
-    2<input type="radio" name="mea" value="2"> 
-    3<input type="radio" name="mea" value="3"> 
-    4<input type="radio" name="mea" value="4"> 
-    5<input type="radio" name="mea" value="5"> 
-    6<input type="radio" name="mea" value="6"> 
-    7<input type="radio" name="mea" value="7"> 
-    8<input type="radio" name="mea" value="8"> 
-    9<input type="radio" name="mea" value="9"> 
-    10<input type="radio" name="mea" value="10"> 
-    11<input type="radio" name="mea" value="11"> 
-    12<input type="radio" name="mea" value="12"> 
-    13<input type="radio" name="mea" value="13"> 
-    14<input type="radio" name="mea" value="14"> 
-    15<input type="radio" name="mea" value="15"><p>
-Me (Bid dice):<br>
-    0<input type="radio" name="meb" value="0" checked>
-    1<input type="radio" name="meb" value="1"> 
-    2<input type="radio" name="meb" value="2"> 
-    3<input type="radio" name="meb" value="3"> 
-    4<input type="radio" name="meb" value="4"> 
-    5<input type="radio" name="meb" value="5"> 
-    6<input type="radio" name="meb" value="6"> 
-    7<input type="radio" name="meb" value="7"> 
-    8<input type="radio" name="meb" value="8"> 
-    9<input type="radio" name="meb" value="9"> 
-    10<input type="radio" name="meb" value="10"> 
-    11<input type="radio" name="meb" value="11"> 
-    12<input type="radio" name="meb" value="12"> 
-    13<input type="radio" name="meb" value="13"> 
-    14<input type="radio" name="meb" value="14"> 
-    15<input type="radio" name="meb" value="15"><p>
-Unknown:<br>
-    0<input type="radio" name="unk" value="0" checked>
-    1<input type="radio" name="unk" value="1"> 
-    2<input type="radio" name="unk" value="2"> 
-    3<input type="radio" name="unk" value="3"> 
-    4<input type="radio" name="unk" value="4"> 
-    5<input type="radio" name="unk" value="5"> 
-    6<input type="radio" name="unk" value="6"> 
-    7<input type="radio" name="unk" value="7"> 
-    8<input type="radio" name="unk" value="8"> 
-    9<input type="radio" name="unk" value="9"> 
-    10<input type="radio" name="unk" value="10"> 
-    11<input type="radio" name="unk" value="11"> 
-    12<input type="radio" name="unk" value="12"> 
-    13<input type="radio" name="unk" value="13"> 
-    14<input type="radio" name="unk" value="14"> 
-    15<input type="radio" name="unk" value="15"><p>
-Same:<br>
-    0<input type="radio" name="same" value="0" checked>
-    1<input type="radio" name="same" value="1"> 
-    2<input type="radio" name="same" value="2"> 
-    3<input type="radio" name="same" value="3"> 
-    4<input type="radio" name="same" value="4"> 
-    5<input type="radio" name="same" value="5"> 
-    6<input type="radio" name="same" value="6"> 
-    7<input type="radio" name="same" value="7"> 
-    8<input type="radio" name="same" value="8"> 
-    9<input type="radio" name="same" value="9"> 
-    10<input type="radio" name="same" value="10"> 
-    11<input type="radio" name="same" value="11"> 
-    12<input type="radio" name="same" value="12"> 
-    13<input type="radio" name="same" value="13"> 
-    14<input type="radio" name="same" value="14"> 
-    15<input type="radio" name="same" value="15"><p>
-Off:<br>
-    0<input type="radio" name="off" value="0" checked>
-    1<input type="radio" name="off" value="1"> 
-    2<input type="radio" name="off" value="2"> 
-    3<input type="radio" name="off" value="3"> 
-    4<input type="radio" name="off" value="4"> 
-    5<input type="radio" name="off" value="5"> 
-    6<input type="radio" name="off" value="6"> 
-    7<input type="radio" name="off" value="7"> 
-    8<input type="radio" name="off" value="8"> 
-    9<input type="radio" name="off" value="9"> 
-    10<input type="radio" name="off" value="10"> 
-    11<input type="radio" name="off" value="11"> 
-    12<input type="radio" name="off" value="12"> 
-    13<input type="radio" name="off" value="13"> 
-    14<input type="radio" name="off" value="14"> 
-    15<input type="radio" name="off" value="15"><p>
-
-Other players' dice count: <br>
-<h4 id="dcnt">0</h4>
-
-<input type="button" id="calcuatebutton" value="Calculate"><p>
-
-Bid Success Estimate: <br>
-<h4 id="bsest">0</h4>
-
-Unknown:<input type="text" id="unk_prob" value="0.167"><br> <!-- !!! if not number between 0 and 1, error -->
-Same:<input type="text" id="sam_prob" value="0.5"><br>
-Off:<input type="text" id="off_prob" value="0.083"><br>
-
+Prob:<input type="text" id="prob" value="0.5">
+<input type="button" id="updategraph" value="Update" onclick="updatedata()"><p>
 </form>
-
-</body>
-</html>

@@ -25,7 +25,8 @@ body {
 
 <head>
 
-<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="jquery.min.js"></script> -->
 
 <script type="text/javascript">
 $(document).ready(function(){
@@ -103,7 +104,8 @@ $(document).ready(function(){
 
 <body>
 
-<script src="d3.v3.min.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<!-- <script src="d3.v3.min.js"></script> -->
 
 <script>
 
@@ -222,12 +224,12 @@ function render(data){
 prob = $('#prob').val();
 
 data_in = [
-{"State": "0 dice rolled", "1 Dice Possessed": binom(+prob,0,1), "2 Dice Possessed": binom(+prob,0,2), "3 Dice Possessed": binom(+prob,0,3), "4 Dice Possessed": binom(+prob,0,4), "5 Dice Possessed": binom(+prob,0,5)},
-{"State": "1 dice rolled", "1 Dice Possessed": binom(+prob,1,1), "2 Dice Possessed": binom(+prob,1,2), "3 Dice Possessed": binom(+prob,1,3), "4 Dice Possessed": binom(+prob,1,4), "5 Dice Possessed": binom(+prob,1,5)},
-{"State": "2 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": binom(+prob,2,2), "3 Dice Possessed": binom(+prob,2,3), "4 Dice Possessed": binom(+prob,2,4), "5 Dice Possessed": binom(+prob,2,5)},
-{"State": "3 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": binom(+prob,3,3), "4 Dice Possessed": binom(+prob,3,4), "5 Dice Possessed": binom(+prob,3,5)},
-{"State": "4 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": binom(+prob,4,4), "5 Dice Possessed": binom(+prob,4,5)},
-{"State": "5 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": 0, "5 Dice Possessed": binom(+prob,5,5)},
+{"State": "0 Dice Rolled", "1 Dice Possessed": binom(+prob,0,1), "2 Dice Possessed": binom(+prob,0,2), "3 Dice Possessed": binom(+prob,0,3), "4 Dice Possessed": binom(+prob,0,4), "5 Dice Possessed": binom(+prob,0,5)},
+{"State": "1 Dice Rolled", "1 Dice Possessed": binom(+prob,1,1), "2 Dice Possessed": binom(+prob,1,2), "3 Dice Possessed": binom(+prob,1,3), "4 Dice Possessed": binom(+prob,1,4), "5 Dice Possessed": binom(+prob,1,5)},
+{"State": "2 Dice Rolled", "1 Dice Possessed": 0, "2 Dice Possessed": binom(+prob,2,2), "3 Dice Possessed": binom(+prob,2,3), "4 Dice Possessed": binom(+prob,2,4), "5 Dice Possessed": binom(+prob,2,5)},
+{"State": "3 Dice Rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": binom(+prob,3,3), "4 Dice Possessed": binom(+prob,3,4), "5 Dice Possessed": binom(+prob,3,5)},
+{"State": "4 Dice Rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": binom(+prob,4,4), "5 Dice Possessed": binom(+prob,4,5)},
+{"State": "5 Dice Rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": 0, "5 Dice Possessed": binom(+prob,5,5)},
 ]
 
 render(data_in)
@@ -350,14 +352,16 @@ Other players' dice count: <br>
 Bid Success Estimate: <br>
 <h4 id="bsest">0</h4>
 
-Bernouli Probabilities:<br>
-Unknown:<input type="text" id="unk_prob" value="0.167"><br>
-Same:<input type="text" id="sam_prob" value="0.5"><br>
-Off:<input type="text" id="off_prob" value="0.083"><p>
+Bernouli Probabilities:<p>
+Unknown:<input type="text" id="unk_prob" value="0.167"> i.e. 1 chance in 6 (a fair six-sided dice)<br>
+Same:<input type="text" id="sam_prob" value="0.5"> An arbitrary estimate - can you find a better estimate?<br>
+Off:<input type="text" id="off_prob" value="0.083"> An arbitrary estimate - can you find a better estimate?<p>
 
-Probability to simulate:<input type="text" id="prob" value="0.5">
+Probability to plot and simulate:<input type="text" id="prob" value="0.167">
 <input type="button" id="updategraph" value="Update" onclick="updatedata()"><p>
 
 </form>
 
+</body>
 
+</html>

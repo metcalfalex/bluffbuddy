@@ -25,19 +25,76 @@ body {
 
 <head>
 
-<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 <script type="text/javascript" src="jquery.min.js"></script>
 
 <script type="text/javascript">
-
 $(document).ready(function(){
 
-  prob = $('#prob').val();
+    function GetZPercent(z) 
+      {
+        // http://stackoverflow.com/questions/16194730/seeking-a-statistical-javascript-function-to-return-p-value-from-a-z-score
+        //z == number of standard deviations from the mean
 
-    // $('#updategraph').click(function(){
-      // alert('xxx');
-      // prob = $('#prob').val();
-    // });
+        //if z is greater than 6.5 standard deviations from the mean
+        //the number of significant digits will be outside of a reasonable 
+        //range
+        if ( z < -6.5)
+          return 0.0;
+        if( z > 6.5) 
+          return 1.0;
+
+        var factK = 1;
+        var sum = 0;
+        var term = 1;
+        var k = 0;
+        var loopStop = Math.exp(-23);
+        while(Math.abs(term) > loopStop) 
+        {
+          term = .3989422804 * Math.pow(-1,k) * Math.pow(z,k) / (2 * k + 1) / Math.pow(2,k) * Math.pow(z,k+1) / factK;
+          sum += term;
+          k++;
+          factK *= k;
+
+        }
+        sum += 0.5;
+
+        return sum;
+      }
+
+    dcnt = 0
+    bsest = 0
+    unk_prob = 0
+    prob = $('#prob').val();
+
+    $("#testForm input:radio").click(function() {
+        bid_dice = $("input[name=bid]:checked").val();
+        mea_dice = $("input[name=mea]:checked").val();
+        meb_dice = $("input[name=meb]:checked").val();
+        unk_dice = $("input[name=unk]:checked").val();
+        sam_dice = $("input[name=same]:checked").val();
+        off_dice = $("input[name=off]:checked").val();
+        dcnt = +mea_dice + +unk_dice + +sam_dice + +off_dice;
+        $('#dcnt').text(dcnt); // Update dice count
+
+    });
+
+    $('#calcuatebutton').click(function(){
+        unk_prob = $('#unk_prob').val();
+        sam_prob = $('#sam_prob').val();
+        off_prob = $('#off_prob').val();
+        zscore_u = +unk_dice * +unk_prob + 
+            +sam_dice * +sam_prob + 
+            +off_dice * +off_prob
+        zscore_s2 = +unk_dice * +unk_prob  * (1 - +unk_prob) +
+            +sam_dice * +sam_prob  * (1 - +sam_prob) +
+            +off_dice * +off_prob  * (1 - +off_prob)
+        zscore = ((+zscore_u-(+bid_dice - +meb_dice + 0.5))/Math.sqrt(+zscore_s2))
+        pvalue = GetZPercent(zscore)
+        $('#bsest').text(pvalue); // Update bid success estimate
+
+    });
+
+    updatedata()
 
 });
 </script>
@@ -45,8 +102,9 @@ $(document).ready(function(){
 </head>
 
 <body>
-<!-- <script src="//d3js.org/d3.v3.min.js"></script> -->
+
 <script src="d3.v3.min.js"></script>
+
 <script>
 
 function factorial(n) {
@@ -60,16 +118,13 @@ function binom(p,x,n) {
   return((factorial(n) / (factorial(x) * factorial(n - x))) * Math.pow(p,(x)) * Math.pow((1-p),(n-x)))
 }
 
-// alert(binom(.5,7,10))
-// alert(factorial(5))
-
 function updatedata() {
 
 d3.select("svg").remove(); // if svg already exists, remove
 
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = 480 - margin.left - margin.right,
+    height = 250 - margin.top - margin.bottom;
 
 var x0 = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -89,7 +144,7 @@ var xAxis = d3.svg.axis()
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
-    .tickFormat(d3.format(".2s"));
+    .tickFormat(d3.format("%"));
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -124,7 +179,8 @@ function render(data){
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Population");
+      .text("");
+      // .text("Probability");
 
   var state = svg.selectAll(".state")
       .data(data)
@@ -163,26 +219,7 @@ function render(data){
 // });
 };
 
-// prob = d3.selectAll("#prob").attr("value");
 prob = $('#prob').val();
-
-// $('#status').text(prob);
-
-
-// Next steps: (1) replace probabilities with binomial functions
-
-// alert(binom(prob,0,1))
-
-// data_in = [
-// {"State": "0 dice rolled", "1 Dice Possessed": +prob+0.1, "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
-// {"State": "1 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
-// {"State": "2 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
-// {"State": "3 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
-// {"State": "4 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
-// {"State": "5 dice rolled", "1 Dice Possessed": "0.1", "2 Dice Possessed": "0.2", "3 Dice Possessed": "0.3", "4 Dice Possessed": "0.4", "5 Dice Possessed": "0.5"},
-// ]
-
-
 
 data_in = [
 {"State": "0 dice rolled", "1 Dice Possessed": binom(+prob,0,1), "2 Dice Possessed": binom(+prob,0,2), "3 Dice Possessed": binom(+prob,0,3), "4 Dice Possessed": binom(+prob,0,4), "5 Dice Possessed": binom(+prob,0,5)},
@@ -193,18 +230,134 @@ data_in = [
 {"State": "5 dice rolled", "1 Dice Possessed": 0, "2 Dice Possessed": 0, "3 Dice Possessed": 0, "4 Dice Possessed": 0, "5 Dice Possessed": binom(+prob,5,5)},
 ]
 
-
-
 render(data_in)
 
 };
 
 </script>
-<br>
 
-<h4 id="status">0</h4>
+<h1>Bluff Buddy</h1>
 
 <form name="myForm" id="testForm">
-Prob:<input type="text" id="prob" value="0.5">
+Bid (The current bid call):<br>
+    0<input type="radio" name="bid" value="0" checked>
+    1<input type="radio" name="bid" value="1"> 
+    2<input type="radio" name="bid" value="2"> 
+    3<input type="radio" name="bid" value="3"> 
+    4<input type="radio" name="bid" value="4"> 
+    5<input type="radio" name="bid" value="5"> 
+    6<input type="radio" name="bid" value="6"> 
+    7<input type="radio" name="bid" value="7"> 
+    8<input type="radio" name="bid" value="8"> 
+    9<input type="radio" name="bid" value="9"> 
+    10<input type="radio" name="bid" value="10"> 
+    11<input type="radio" name="bid" value="11"> 
+    12<input type="radio" name="bid" value="12"> 
+    13<input type="radio" name="bid" value="13"> 
+    14<input type="radio" name="bid" value="14"> 
+    15<input type="radio" name="bid" value="15"><p>
+Me (The number of dice I have of the current bid value):<br>
+    0<input type="radio" name="meb" value="0" checked>
+    1<input type="radio" name="meb" value="1"> 
+    2<input type="radio" name="meb" value="2"> 
+    3<input type="radio" name="meb" value="3"> 
+    4<input type="radio" name="meb" value="4"> 
+    5<input type="radio" name="meb" value="5"> 
+    6<input type="radio" name="meb" value="6"> 
+    7<input type="radio" name="meb" value="7"> 
+    8<input type="radio" name="meb" value="8"> 
+    9<input type="radio" name="meb" value="9"> 
+    10<input type="radio" name="meb" value="10"> 
+    11<input type="radio" name="meb" value="11"> 
+    12<input type="radio" name="meb" value="12"> 
+    13<input type="radio" name="meb" value="13"> 
+    14<input type="radio" name="meb" value="14"> 
+    15<input type="radio" name="meb" value="15"><p>
+Me (The total number of dice I have):<br>
+    0<input type="radio" name="mea" value="0" checked>
+    1<input type="radio" name="mea" value="1"> 
+    2<input type="radio" name="mea" value="2"> 
+    3<input type="radio" name="mea" value="3"> 
+    4<input type="radio" name="mea" value="4"> 
+    5<input type="radio" name="mea" value="5"> 
+    6<input type="radio" name="mea" value="6"> 
+    7<input type="radio" name="mea" value="7"> 
+    8<input type="radio" name="mea" value="8"> 
+    9<input type="radio" name="mea" value="9"> 
+    10<input type="radio" name="mea" value="10"> 
+    11<input type="radio" name="mea" value="11"> 
+    12<input type="radio" name="mea" value="12"> 
+    13<input type="radio" name="mea" value="13"> 
+    14<input type="radio" name="mea" value="14"> 
+    15<input type="radio" name="mea" value="15"><p>
+Unknown (Dice belonging to players with no or uncertain information):<br>
+    0<input type="radio" name="unk" value="0" checked>
+    1<input type="radio" name="unk" value="1"> 
+    2<input type="radio" name="unk" value="2"> 
+    3<input type="radio" name="unk" value="3"> 
+    4<input type="radio" name="unk" value="4"> 
+    5<input type="radio" name="unk" value="5"> 
+    6<input type="radio" name="unk" value="6"> 
+    7<input type="radio" name="unk" value="7"> 
+    8<input type="radio" name="unk" value="8"> 
+    9<input type="radio" name="unk" value="9"> 
+    10<input type="radio" name="unk" value="10"> 
+    11<input type="radio" name="unk" value="11"> 
+    12<input type="radio" name="unk" value="12"> 
+    13<input type="radio" name="unk" value="13"> 
+    14<input type="radio" name="unk" value="14"> 
+    15<input type="radio" name="unk" value="15"><p>
+Same (Dice belonging to players who have bid the same value as the current bid):<br>
+    0<input type="radio" name="same" value="0" checked>
+    1<input type="radio" name="same" value="1"> 
+    2<input type="radio" name="same" value="2"> 
+    3<input type="radio" name="same" value="3"> 
+    4<input type="radio" name="same" value="4"> 
+    5<input type="radio" name="same" value="5"> 
+    6<input type="radio" name="same" value="6"> 
+    7<input type="radio" name="same" value="7"> 
+    8<input type="radio" name="same" value="8"> 
+    9<input type="radio" name="same" value="9"> 
+    10<input type="radio" name="same" value="10"> 
+    11<input type="radio" name="same" value="11"> 
+    12<input type="radio" name="same" value="12"> 
+    13<input type="radio" name="same" value="13"> 
+    14<input type="radio" name="same" value="14"> 
+    15<input type="radio" name="same" value="15"><p>
+Off (Dice belonging to players who have bid a different value to the current bid):<br>
+    0<input type="radio" name="off" value="0" checked>
+    1<input type="radio" name="off" value="1"> 
+    2<input type="radio" name="off" value="2"> 
+    3<input type="radio" name="off" value="3"> 
+    4<input type="radio" name="off" value="4"> 
+    5<input type="radio" name="off" value="5"> 
+    6<input type="radio" name="off" value="6"> 
+    7<input type="radio" name="off" value="7"> 
+    8<input type="radio" name="off" value="8"> 
+    9<input type="radio" name="off" value="9"> 
+    10<input type="radio" name="off" value="10"> 
+    11<input type="radio" name="off" value="11"> 
+    12<input type="radio" name="off" value="12"> 
+    13<input type="radio" name="off" value="13"> 
+    14<input type="radio" name="off" value="14"> 
+    15<input type="radio" name="off" value="15"><p>
+
+Other players' dice count: <br>
+<h4 id="dcnt">0</h4>
+
+<input type="button" id="calcuatebutton" value="Estimate Bid Success"><p>
+
+Bid Success Estimate: <br>
+<h4 id="bsest">0</h4>
+
+Bernouli Probabilities:<br>
+Unknown:<input type="text" id="unk_prob" value="0.167"><br>
+Same:<input type="text" id="sam_prob" value="0.5"><br>
+Off:<input type="text" id="off_prob" value="0.083"><p>
+
+Probability to simulate:<input type="text" id="prob" value="0.5">
 <input type="button" id="updategraph" value="Update" onclick="updatedata()"><p>
+
 </form>
+
+
